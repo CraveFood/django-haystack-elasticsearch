@@ -3,14 +3,14 @@ django-haystack-elasticsearch
 ===============================
 
 
-.. image:: https://img.shields.io/pypi/v/haystack_elasticsearch.svg
-        :target: https://pypi.python.org/pypi/haystack_elasticsearch
+.. image:: https://img.shields.io/pypi/v/django-haystack-elasticsearch.svg
+        :target: https://pypi.python.org/pypi/django-haystack-elasticsearch
 
 .. image:: https://img.shields.io/travis/CraveFood/django-haystack-elasticsearch.svg
         :target: https://travis-ci.org/CraveFood/django-haystack-elasticsearch
 
-.. image:: https://readthedocs.org/projects/haystack-elasticsearch/badge/?version=latest
-        :target: https://haystack-elasticsearch.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/django-haystack-elasticsearch/badge/?version=latest
+        :target: https://django-haystack-elasticsearch.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
 .. image:: https://pyup.io/repos/github/CraveFood/django-haystack-elasticsearch/shield.svg
@@ -22,7 +22,7 @@ A set of backends for using Elasticsearch on Haystack.
 
 
 * Free software: BSD license
-* Documentation: https://haystack-elasticsearch.readthedocs.io.
+* Documentation: https://django-haystack-elasticsearch.readthedocs.io.
 
 
 Features
