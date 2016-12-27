@@ -294,9 +294,6 @@ class ElasticsearchSearchBackend(BaseSearchBackend):
             kwargs['suggest'] = self._build_search_kwargs_suggest(
                 query_string, spelling_query)
 
-        if narrow_queries is None:
-            narrow_queries = set()
-
         field, result = self._build_search_kwargs_facets(facets, date_facets,
                                                          query_facets)
         kwargs[field] = result
@@ -306,6 +303,8 @@ class ElasticsearchSearchBackend(BaseSearchBackend):
         if model_choices:
             filters.append(model_choices)
 
+        if narrow_queries is None:
+            narrow_queries = set()
         for q in narrow_queries:
             filters.append(self._build_search_filters_narrow_query(q))
 
