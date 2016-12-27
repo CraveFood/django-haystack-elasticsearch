@@ -1,21 +1,67 @@
-# Config file for automatic testing at travis-ci.org
-# This file will be regenerated if you run travis_pypi_setup.py
-
+sudo: true
 language: python
-python: 3.5
+python:
+    - 2.7
+    - 3.4
+    - 3.5
+    - pypy
+
+cache:
+    apt: true
+    pip: true
+    directories:
+        - $HOME/download-cache
+
+addons:
+    apt_packages:
+        - binutils
+        - default-jdk
+        - gdal-bin
+        - libgdal1h
+        - libgeos-c1
+        - libproj-dev
+        - libxapian22
+        - python-xapian
+        - wajig
+
+before_install:
+    - mkdir -p $HOME/download-cache
+    - wget -qO - https://packages.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+    - >
+      if [[ $VERSION_ES == '>=5.0.0,<6.0.0' ]]; then
+        echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elasticsearch-5.x.list
+      elif [[ $VERSION_ES == '>=2.0.0,<3.0.0' ]]; then
+        echo "deb http://packages.elastic.co/elasticsearch/2.x/debian stable main" | sudo tee -a /etc/apt/sources.list.d/elasticsearch-2.x.list
+      else
+        echo "deb http://packages.elastic.co/elasticsearch/1.7/debian stable main" | sudo tee -a /etc/apt/sources.list.d/elasticsearch-1.7.list
+      fi
+    - sudo apt-get update
+    - sudo apt-get -y install oracle-java8-installer elasticsearch
+    - sudo service elasticsearch restart
+
+install:
+    - pip install --upgrade setuptools
+    - pip install requests "Django${DJANGO_VERSION}" "elasticsearch${VERSION_ES}"
+    - python setup.py clean build install
+
+script:
+    - python setup.py test
 
 env:
-  - TOXENV=py35
-  - TOXENV=py34
-  - TOXENV=py33
-  - TOXENV=py27
-  - TOXENV=pypy
+    matrix:
+        - DJANGO_VERSION=">=1.8,<1.9" VERSION_ES=">=1.0.0,<2.0.0"
+        - DJANGO_VERSION=">=1.9,<1.10" VERSION_ES=">=1.0.0,<2.0.0"
+        - DJANGO_VERSION=">=1.10,<1.11" VERSION_ES=">=1.0.0,<2.0.0"
+        - DJANGO_VERSION=">=1.8,<1.9" VERSION_ES=">=2.0.0,<3.0.0"
+        - DJANGO_VERSION=">=1.9,<1.10" VERSION_ES=">=2.0.0,<3.0.0"
+        - DJANGO_VERSION=">=1.10,<1.11" VERSION_ES=">=2.0.0,<3.0.0"
+        - DJANGO_VERSION=">=1.8,<1.9" VERSION_ES=">=5.0.0,<6.0.0"
+        - DJANGO_VERSION=">=1.9,<1.10" VERSION_ES=">=5.0.0,<6.0.0"
+        - DJANGO_VERSION=">=1.10,<1.11" VERSION_ES=">=5.0.0,<6.0.0"
 
-# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: pip install -U tox
-
-# command to run tests, e.g. python setup.py test
-script: tox -e ${TOXENV}
+matrix:
+    allow_failures:
+        - python: 'pypy'
 
 # After you create the Github repo and add it to Travis, run the
 # travis_pypi_setup.py script to finish PyPI deployment setup
