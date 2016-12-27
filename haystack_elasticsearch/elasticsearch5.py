@@ -7,10 +7,11 @@ import warnings
 import haystack
 from django.conf import settings
 from haystack.backends import BaseEngine
-from haystack.constants import DEFAULT_OPERATOR, DJANGO_CT, FUZZINESS
+from haystack.constants import DEFAULT_OPERATOR, DJANGO_CT
 from haystack.exceptions import MissingDependency
 from haystack.utils import get_identifier, get_model_ct
 
+from haystack_elasticsearch.constants import FUZZINESS
 from haystack_elasticsearch.elasticsearch import ElasticsearchSearchBackend, ElasticsearchSearchQuery
 
 try:
