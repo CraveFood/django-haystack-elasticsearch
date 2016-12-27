@@ -15,7 +15,7 @@ def run_all(argv=None):
     # always insert coverage when running tests through setup.py
     if argv is None:
         argv = [
-            'nosetests', '--with-coverage', '--cover-package=haystack',
+            'nosetests', '--with-coverage', '--cover-package=haystack_elasticsearch',
             '--cover-erase', '--verbose',
         ]
 
