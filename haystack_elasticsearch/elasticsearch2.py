@@ -131,6 +131,7 @@ class Elasticsearch2SearchBackend(ElasticsearchSearchBackend):
                     }
                 }
 
+        if query_facets is not None:
             for facet_fieldname, value in query_facets:
                 result[facet_fieldname] = {
                     'meta': {
