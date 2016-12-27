@@ -69,37 +69,10 @@ class Elasticsearch2SearchBackend(ElasticsearchSearchBackend):
             else:
                 self.log.error("Failed to clear Elasticsearch index: %s", e, exc_info=True)
 
-    def build_search_kwargs(self, query_string, sort_by=None, start_offset=0, end_offset=None,
-                            fields='', highlight=False, facets=None,
-                            date_facets=None, query_facets=None,
-                            narrow_queries=None, spelling_query=None,
-                            within=None, dwithin=None, distance_point=None,
-                            models=None, limit_to_registered_models=None,
-                            result_class=None):
-        kwargs = super(Elasticsearch2SearchBackend, self).build_search_kwargs(query_string, sort_by,
-                                                                              start_offset, end_offset,
-                                                                              fields, highlight,
-                                                                              spelling_query=spelling_query,
-                                                                              within=within, dwithin=dwithin,
-                                                                              distance_point=distance_point,
-                                                                              models=models,
-                                                                              limit_to_registered_models=
-                                                                              limit_to_registered_models,
-                                                                              result_class=result_class)
-
-        filters = []
-        if start_offset is not None:
-            kwargs['from'] = start_offset
-
-        if end_offset is not None:
-            kwargs['size'] = end_offset - start_offset
-
-        if narrow_queries is None:
-            narrow_queries = set()
+    def _build_search_kwargs_facets(self, facets, date_facets, query_facets):
+        result = {}
 
         if facets is not None:
-            kwargs.setdefault('aggs', {})
-
             for facet_fieldname, extra_options in facets.items():
                 facet_options = {
                     'meta': {
@@ -111,28 +84,29 @@ class Elasticsearch2SearchBackend(ElasticsearchSearchBackend):
                 }
                 if 'order' in extra_options:
                     facet_options['meta']['order'] = extra_options.pop('order')
-                # Special cases for options applied at the facet level (not the terms level).
+                # Special cases for options applied at the facet level
+                # (not the terms level).
                 if extra_options.pop('global_scope', False):
                     # Renamed "global_scope" since "global" is a python keyword.
                     facet_options['global'] = True
                 if 'facet_filter' in extra_options:
-                    facet_options['facet_filter'] = extra_options.pop('facet_filter')
+                    facet_options['facet_filter'] = extra_options.pop(
+                        'facet_filter')
                 facet_options['terms'].update(extra_options)
-                kwargs['aggs'][facet_fieldname] = facet_options
+                result[facet_fieldname] = facet_options
 
         if date_facets is not None:
-            kwargs.setdefault('aggs', {})
-
             for facet_fieldname, value in date_facets.items():
                 # Need to detect on gap_by & only add amount if it's more than one.
                 interval = value.get('gap_by').lower()
 
                 # Need to detect on amount (can't be applied on months or years).
-                if value.get('gap_amount', 1) != 1 and interval not in ('month', 'year'):
+                if value.get('gap_amount', 1) != 1 and \
+                        interval not in ('month', 'year'):
                     # Just the first character is valid for use.
                     interval = "%s%s" % (value['gap_amount'], interval[:1])
 
-                kwargs['aggs'][facet_fieldname] = {
+                result[facet_fieldname] = {
                     'meta': {
                         '_type': 'date_histogram',
                     },
@@ -146,8 +120,10 @@ class Elasticsearch2SearchBackend(ElasticsearchSearchBackend):
                                 'field': facet_fieldname,
                                 'ranges': [
                                     {
-                                        'from': self._from_python(value.get('start_date')),
-                                        'to': self._from_python(value.get('end_date')),
+                                        'from': self._from_python(
+                                            value.get('start_date')),
+                                        'to': self._from_python(
+                                            value.get('end_date')),
                                     }
                                 ]
                             }
@@ -155,11 +131,8 @@ class Elasticsearch2SearchBackend(ElasticsearchSearchBackend):
                     }
                 }
 
-        if query_facets is not None:
-            kwargs.setdefault('aggs', {})
-
             for facet_fieldname, value in query_facets:
-                kwargs['aggs'][facet_fieldname] = {
+                result[facet_fieldname] = {
                     'meta': {
                         '_type': 'query',
                     },
@@ -170,31 +143,14 @@ class Elasticsearch2SearchBackend(ElasticsearchSearchBackend):
                     },
                 }
 
-        for q in narrow_queries:
-            filters.append({
-                'query_string': {
-                    'query': q
-                }
-            })
+        return 'aggs', result
 
-        # if we want to filter, change the query type to filteres
-        if filters:
-            kwargs["query"] = {"filtered": {"query": kwargs.pop("query")}}
-            filtered = kwargs["query"]["filtered"]
-            if 'filter' in filtered:
-                if "bool" in filtered["filter"].keys():
-                    another_filters = kwargs['query']['filtered']['filter']['bool']['must']
-                else:
-                    another_filters = [kwargs['query']['filtered']['filter']]
-            else:
-                another_filters = filters
-
-            if len(another_filters) == 1:
-                kwargs['query']['filtered']["filter"] = another_filters[0]
-            else:
-                kwargs['query']['filtered']["filter"] = {"bool": {"must": another_filters}}
-
-        return kwargs
+    def _build_search_filters_narrow_query(self, q):
+        return {
+            'query_string': {
+                'query': q
+            }
+        }
 
     def more_like_this(self, model_instance, additional_query_string=None,
                        start_offset=0, end_offset=None, models=None,
