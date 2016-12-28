@@ -298,10 +298,20 @@ class ElasticsearchSearchBackend(BaseSearchBackend):
                                                          query_facets)
         kwargs[field] = result
 
-        model_choices = self._build_search_filters_model_choices(
-            limit_to_registered_models, models)
-        if model_choices:
-            filters.append(model_choices)
+        if limit_to_registered_models is None:
+            limit_to_registered_models = getattr(
+                settings, 'HAYSTACK_LIMIT_TO_REGISTERED_MODELS', True)
+        if models and len(models):
+            model_choices = sorted(get_model_ct(model) for model in models)
+        elif limit_to_registered_models:
+            # Using narrow queries, limit the results to only models handled
+            # with the current routers.
+            model_choices = self.build_models_list()
+        else:
+            model_choices = []
+        if len(model_choices) > 0:
+            filters.append(self._build_search_filters_model_choices(
+                model_choices))
 
         if narrow_queries is None:
             narrow_queries = set()
@@ -457,21 +467,8 @@ class ElasticsearchSearchBackend(BaseSearchBackend):
 
         return 'facets', result
 
-    def _build_search_filters_model_choices(self, limit_to_registered_models,
-                                            models):
-        if limit_to_registered_models is None:
-            limit_to_registered_models = getattr(
-                settings, 'HAYSTACK_LIMIT_TO_REGISTERED_MODELS', True)
-        if models and len(models):
-            model_choices = sorted(get_model_ct(model) for model in models)
-        elif limit_to_registered_models:
-            # Using narrow queries, limit the results to only models handled
-            # with the current routers.
-            model_choices = self.build_models_list()
-        else:
-            model_choices = []
-        if len(model_choices) > 0:
-            return {"terms": {DJANGO_CT: model_choices}}
+    def _build_search_filters_model_choices(self, model_choices):
+        return {"terms": {DJANGO_CT: model_choices}}
 
     def _build_search_filters_narrow_query(self, q):
         return {
