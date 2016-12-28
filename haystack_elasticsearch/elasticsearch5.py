@@ -122,8 +122,6 @@ class Elasticsearch5SearchBackend(ElasticsearchSearchBackend):
                         '_type': 'terms',
                     },
                     'terms': {
-                        # FIXME this breaks dynamic faceted fields
-                        # perhaps add_field_facet should make the same treatment as build_schema?
                         'field': index.get_facet_fieldname(facet_fieldname),
                     }
                 }
@@ -332,7 +330,10 @@ class Elasticsearch5SearchBackend(ElasticsearchSearchBackend):
 
 
 class Elasticsearch5SearchQuery(ElasticsearchSearchQuery):
-    pass
+    def add_field_facet(self, field, **options):
+        """Adds a regular facet on a field."""
+        # to be renamed to the facet fieldname by build_search_kwargs later
+        self.facets[field] = options.copy()
 
 
 class Elasticsearch5SearchEngine(BaseEngine):
