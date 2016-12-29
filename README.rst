@@ -23,53 +23,56 @@ A set of backends for using multiple versions of Elasticsearch on Haystack_.
 How to use
 ----------
 
-* Make sure that your `elasticsearch` library has the same major version as your Elasticsearch server.
-* Choose the right backend as your `ENGINE` on Haystack.
+* Make sure that your ``elasticsearch`` library has the same major version as your Elasticsearch server.
+* Choose the right backend as your ``ENGINE`` on Haystack.
 
 Elasticsearch 1.x
 ~~~~~~~~~~~~~~~~~
 
-```
-$ pip install "elasticsearch>=1.0.0,<2.0.0"
-```
-```
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack_elasticsearch.elasticsearch.ElasticsearchSearchEngine',
-        ...
-    },
-}
-```
+.. code-block:: sh
+
+    $ pip install "elasticsearch>=1.0.0,<2.0.0"
+
+.. code-block:: python
+
+    HAYSTACK_CONNECTIONS = {
+        'default': {
+            'ENGINE': 'haystack_elasticsearch.elasticsearch.ElasticsearchSearchEngine',
+            ...
+        },
+    }
 
 Elasticsearch 2.x
 ~~~~~~~~~~~~~~~~~
 
-```
-$ pip install "elasticsearch>=2.0.0,<3.0.0"
-```
-```
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack_elasticsearch.elasticsearch2.Elasticsearch2SearchEngine',
-        ...
-    },
-}
-```
+.. code-block:: sh
+
+    $ pip install "elasticsearch>=2.0.0,<3.0.0"
+
+.. code-block:: python
+
+    HAYSTACK_CONNECTIONS = {
+        'default': {
+            'ENGINE': 'haystack_elasticsearch.elasticsearch2.Elasticsearch2SearchEngine',
+            ...
+        },
+    }
 
 Elasticsearch 5.x
 ~~~~~~~~~~~~~~~~~
 
-```
-$ pip install "elasticsearch>=5.0.0,<6.0.0"
-```
-```
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack_elasticsearch.elasticsearch5.Elasticsearch5SearchEngine',
-        ...
-    },
-}
-```
+.. code-block:: sh
+
+    $ pip install "elasticsearch>=5.0.0,<6.0.0"
+
+.. code-block:: python
+
+    HAYSTACK_CONNECTIONS = {
+        'default': {
+            'ENGINE': 'haystack_elasticsearch.elasticsearch5.Elasticsearch5SearchEngine',
+            ...
+        },
+    }
 
 Credits
 -------
