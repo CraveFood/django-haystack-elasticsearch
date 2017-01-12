@@ -31,7 +31,7 @@ Elasticsearch 1.x
 
 .. code-block:: sh
 
-    $ pip install "elasticsearch>=1.0.0,<2.0.0"
+    $ pip install "elasticsearch>=1.0.0,<2.0.0" django-haystack-elasticsearch
 
 .. code-block:: python
 
@@ -47,7 +47,7 @@ Elasticsearch 2.x
 
 .. code-block:: sh
 
-    $ pip install "elasticsearch>=2.0.0,<3.0.0"
+    $ pip install "elasticsearch>=2.0.0,<3.0.0" django-haystack-elasticsearch
 
 .. code-block:: python
 
@@ -63,7 +63,7 @@ Elasticsearch 5.x
 
 .. code-block:: sh
 
-    $ pip install "elasticsearch>=5.0.0,<6.0.0"
+    $ pip install "elasticsearch>=5.0.0,<6.0.0" django-haystack-elasticsearch
 
 .. code-block:: python
 
